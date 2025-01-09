@@ -10,6 +10,12 @@ const server =  http.createServer(app);
 const io = new Server(server);
 
 // middleware
-app.use(express.static(path.resolve("")))
+app.use(express.static(path.resolve("")));
 
-app.get
+app.get("/", (req, res) =>{
+    return res.sendFile("index.html");
+})
+
+server.listen(3000, ()=>{
+    console.log("Port connected to 3000");
+})
