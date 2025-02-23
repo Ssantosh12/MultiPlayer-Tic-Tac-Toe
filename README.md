@@ -37,4 +37,3 @@ This project is open-source and available under the MIT License.
 
 ---
 
-Feel free to adjust as needed!
