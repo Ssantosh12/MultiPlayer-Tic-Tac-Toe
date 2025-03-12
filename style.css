@@ -4,7 +4,7 @@
 }
 
 body {
-    background-color: rgb(255, 255, 255);
+    background-color: rgb(247, 231, 231);
     display: grid;
     place-items: center;
     font-family: 'Tilt Warp', cursive;
@@ -13,7 +13,7 @@ body {
 h1 {
     margin: 50px 0 50px 0;
     font-size: 5rem;
-    color: rgb(32, 183, 93);
+    color: rgb(186, 42, 99);
     -webkit-text-stroke: .5px black;
 }
 
