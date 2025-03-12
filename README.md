@@ -31,6 +31,10 @@ To run the game locally:
 - **CSS**: Styling for a clean and modern user interface.
 - **JavaScript**: Core game logic and interactivity for the multiplayer functionality.
 
+## GamePlay
+![tic tac toe pic1](https://github.com/user-attachments/assets/d5869e23-7fe8-41af-b8f3-4dd9aac58766)
+
+
 ## License
 
 This project is open-source and available under the MIT License.
