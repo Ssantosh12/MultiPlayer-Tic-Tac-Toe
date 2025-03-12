@@ -11,6 +11,9 @@ A real-time multiplayer Tic Tac Toe game developed with HTML, CSS, and JavaScrip
 - **Responsive Interface**: Designed for both desktop and mobile use.
 - **Real-time Updates**: Players' moves are instantly reflected on both screens.
 
+## GamePlay
+![tic tac toe pic1](https://github.com/user-attachments/assets/d5869e23-7fe8-41af-b8f3-4dd9aac58766)
+
 ## Getting Started
 
 To run the game locally:
@@ -30,10 +33,6 @@ To run the game locally:
 - **HTML**: Used for structuring the game interface.
 - **CSS**: Styling for a clean and modern user interface.
 - **JavaScript**: Core game logic and interactivity for the multiplayer functionality.
-
-## GamePlay
-![tic tac toe pic1](https://github.com/user-attachments/assets/d5869e23-7fe8-41af-b8f3-4dd9aac58766)
-
 
 ## License
 
