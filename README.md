@@ -12,7 +12,8 @@ A real-time multiplayer Tic Tac Toe game developed with HTML, CSS, and JavaScrip
 - **Real-time Updates**: Players' moves are instantly reflected on both screens.
 
 ## GamePlay
-![tic tac toe pic1](https://github.com/user-attachments/assets/d5869e23-7fe8-41af-b8f3-4dd9aac58766)
+![tic tac toe pic2](https://github.com/user-attachments/assets/f52681e1-05d6-4426-993d-9467d745797b)
+
 
 ## Getting Started
 
