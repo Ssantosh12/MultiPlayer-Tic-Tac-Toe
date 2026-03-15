@@ -27,7 +27,18 @@ To run the game locally:
     ```bash
     cd MultiPlayer-Tic-Tac-Toe
     ```
-3. Open the `index.html` file in your browser to start playing.
+3. Install dependencies:
+    ```bash
+    npm install
+    ```
+4. Start the server:
+    ```bash
+    npm start
+    ```
+5. Open your browser and go to:
+    ```
+    http://localhost:3000
+    ```
 
 ## Technologies Used
 
