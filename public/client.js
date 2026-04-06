@@ -24,6 +24,7 @@ function getUrlParams() {
   return {
     dualMode: params.get("dualMode"),
     playerName: params.get("playerName"),
+    dualCode: params.get("dualCode"),
   };
 }
 
@@ -113,23 +114,23 @@ const urlParams = getUrlParams();
 if (urlParams.dualMode && urlParams.playerName) {
   dom.nameInput.value = urlParams.playerName;
   
-  // Generate a unique dual code based on the page load time window
-  // Both iframes loaded at same time will have similar timestamps
-  const dualCode = "dual_" + Math.floor(Date.now() / 1000);
+  // Use the dualCode passed from parent window
+  const dualCode = urlParams.dualCode;
   
-  // Auto-trigger find after a short delay to ensure both iframes are loaded
+  // Auto-trigger find after a short delay to ensure socket connection is ready
   setTimeout(() => {
     const name = dom.nameInput.value.trim();
-    if (name) {
+    if (name && dualCode) {
       setLoading(true);
       dom.findBtn.disabled = true;
+      console.log("Emitting find for dual mode with code:", dualCode);
       socket.emit("find", { 
         name,
         dualMode: urlParams.dualMode,
         dualCode: dualCode
       });
     }
-  }, 500); // Small delay to ensure both iframes load and connect
+  }, 300); // Shorter delay since we now have a matching code
 }
 
 // Event listeners

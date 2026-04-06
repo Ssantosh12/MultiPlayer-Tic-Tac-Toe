@@ -74,8 +74,18 @@
   </div>
 
   <script>
-    // Optional: Add communication between iframes if needed
-    console.log("Dual mode loaded with two game instances");
+    // Generate a unique dual session code
+    const dualCode = "dual_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    
+    // Update iframe src with the dualCode
+    const iframe1 = document.querySelector(".game-container iframe");
+    const gameContainers = document.querySelectorAll(".game-container");
+    const iframe2 = gameContainers[1].querySelector("iframe");
+    
+    iframe1.src = `/?dualMode=1&playerName=Player1&dualCode=${dualCode}`;
+    iframe2.src = `/?dualMode=2&playerName=Player2&dualCode=${dualCode}`;
+    
+    console.log("Dual mode loaded with code:", dualCode);
   </script>
 </body>
 
