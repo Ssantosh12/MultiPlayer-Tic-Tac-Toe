@@ -117,20 +117,20 @@ if (urlParams.dualMode && urlParams.playerName) {
   // Use the dualCode passed from parent window
   const dualCode = urlParams.dualCode;
   
-  // Auto-trigger find after a short delay to ensure socket connection is ready
-  setTimeout(() => {
+  // Wait for socket to be connected before emitting
+  socket.on("connect", () => {
+    console.log("Socket connected! Emitting find for dual mode with code:", dualCode);
     const name = dom.nameInput.value.trim();
     if (name && dualCode) {
       setLoading(true);
       dom.findBtn.disabled = true;
-      console.log("Emitting find for dual mode with code:", dualCode);
       socket.emit("find", { 
         name,
         dualMode: urlParams.dualMode,
         dualCode: dualCode
       });
     }
-  }, 300); // Shorter delay since we now have a matching code
+  });
 }
 
 // Event listeners
@@ -176,4 +176,17 @@ socket.on("update", (payload) => {
 
 socket.on("opponentLeft", () => {
   endMatch("Opponent disconnected. Refresh to play again.");
+});
+
+socket.on("connect_error", (error) => {
+  console.error("Socket connection error:", error);
+  setLoading(false);
+});
+
+socket.on("disconnect", (reason) => {
+  console.log("Socket disconnected:", reason);
+  if (reason === "io server disconnect") {
+    // Server disconnected, try to reconnect
+    setLoading(false);
+  }
 });

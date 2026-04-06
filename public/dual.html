@@ -63,24 +63,23 @@
 <body>
   <div class="game-container">
     <h2>Player 1</h2>
-    <iframe src="/?dualMode=1&playerName=Player1"></iframe>
+    <iframe id="iframe1"></iframe>
   </div>
 
   <div class="divider"></div>
 
   <div class="game-container">
     <h2>Player 2</h2>
-    <iframe src="/?dualMode=2&playerName=Player2"></iframe>
+    <iframe id="iframe2"></iframe>
   </div>
 
   <script>
     // Generate a unique dual session code
     const dualCode = "dual_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
     
-    // Update iframe src with the dualCode
-    const iframe1 = document.querySelector(".game-container iframe");
-    const gameContainers = document.querySelectorAll(".game-container");
-    const iframe2 = gameContainers[1].querySelector("iframe");
+    // Set iframe src with the dualCode (don't load until code is generated)
+    const iframe1 = document.getElementById("iframe1");
+    const iframe2 = document.getElementById("iframe2");
     
     iframe1.src = `/?dualMode=1&playerName=Player1&dualCode=${dualCode}`;
     iframe2.src = `/?dualMode=2&playerName=Player2&dualCode=${dualCode}`;

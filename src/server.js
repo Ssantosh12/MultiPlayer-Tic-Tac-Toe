@@ -107,9 +107,11 @@ io.on("connection", (socket) => {
 
     // Handle dual mode pairing
     if (dualMode && dualCode) {
+      console.log(`[Dual Mode] Player ${name} connecting with code: ${dualCode}`);
       if (dualModePairs.has(dualCode)) {
         const opponent = dualModePairs.get(dualCode);
         dualModePairs.delete(dualCode);
+        console.log(`[Dual Mode] Matched! Pairing ${name} with ${opponent.data.name}`);
 
         // Create game with dual mode players
         const game = createGame(
@@ -147,6 +149,7 @@ io.on("connection", (socket) => {
         return;
       } else {
         // First player in dual mode - add to waiting for pair
+        console.log(`[Dual Mode] First player (${name}) waiting with code: ${dualCode}`);
         dualModePairs.set(dualCode, socket);
         socket.emit("waiting");
         return;
