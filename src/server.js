@@ -5,7 +5,15 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  },
+  transports: ['websocket', 'polling'],
+  pingInterval: 25000,
+  pingTimeout: 60000
+});
 
 const publicDir = path.join(__dirname, "..", "public");
 app.use(express.static(publicDir));
@@ -107,10 +115,19 @@ io.on("connection", (socket) => {
 
     // Handle dual mode pairing
     if (dualMode && dualCode) {
-      console.log(`[Dual Mode] Player ${name} connecting with code: ${dualCode}`);
+      console.log(`[Dual Mode] Player ${name} connecting with code: ${dualCode}. Connected: ${socket.connected}`);
       if (dualModePairs.has(dualCode)) {
         const opponent = dualModePairs.get(dualCode);
         dualModePairs.delete(dualCode);
+        
+        // Verify opponent is still connected
+        if (!opponent.connected) {
+          console.log(`[Dual Mode] ERROR: Opponent disconnected before pairing. Putting ${name} back in queue.`);
+          dualModePairs.set(dualCode, socket);
+          socket.emit("waiting");
+          return;
+        }
+        
         console.log(`[Dual Mode] Matched! Pairing ${name} with ${opponent.data.name}`);
 
         // Create game with dual mode players
@@ -152,6 +169,19 @@ io.on("connection", (socket) => {
         console.log(`[Dual Mode] First player (${name}) waiting with code: ${dualCode}`);
         dualModePairs.set(dualCode, socket);
         socket.emit("waiting");
+        
+        // Timeout after 15 seconds - if second player doesn't connect, remove from queue
+        const timeoutId = setTimeout(() => {
+          if (dualModePairs.has(dualCode) && dualModePairs.get(dualCode) === socket) {
+            console.log(`[Dual Mode] Timeout: Second player never connected for code ${dualCode}. Cleaning up.`);
+            dualModePairs.delete(dualCode);
+            if (socket.connected) {
+              socket.emit("waiting_timeout");
+            }
+          }
+        }, 15000);
+        
+        socket.data.dualTimeoutId = timeoutId;
         return;
       }
     }
@@ -231,10 +261,19 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     const gameId = socket.data.gameId;
     const dualCode = socket.data.dualCode;
+    const dualTimeoutId = socket.data.dualTimeoutId;
+
+    // Clear dual mode timeout if exists
+    if (dualTimeoutId) {
+      clearTimeout(dualTimeoutId);
+    }
 
     // If the player was in dual mode queue, remove them
-    if (dualCode && dualModePairs.has(dualCode)) {
-      dualModePairs.delete(dualCode);
+    if (dualCode) {
+      console.log(`[Dual Mode] Player disconnected during pairing phase for code: ${dualCode}`);
+      if (dualModePairs.has(dualCode)) {
+        dualModePairs.delete(dualCode);
+      }
     }
 
     // If the player was waiting, remove them from the queue.

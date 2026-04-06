@@ -1,4 +1,10 @@
-const socket = io();
+const socket = io({
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  reconnectionAttempts: 5,
+  transports: ['websocket', 'polling']
+});
 
 const dom = {
   loading: document.getElementById("loading"),
@@ -118,7 +124,7 @@ if (urlParams.dualMode && urlParams.playerName) {
   const dualCode = urlParams.dualCode;
   
   // Wait for socket to be connected before emitting
-  socket.on("connect", () => {
+  const connectHandler = () => {
     console.log("Socket connected! Emitting find for dual mode with code:", dualCode);
     const name = dom.nameInput.value.trim();
     if (name && dualCode) {
@@ -130,7 +136,16 @@ if (urlParams.dualMode && urlParams.playerName) {
         dualCode: dualCode
       });
     }
-  });
+    socket.off("connect", connectHandler); // Remove listener after first connection
+  };
+  
+  if (socket.connected) {
+    // Socket already connected
+    connectHandler();
+  } else {
+    // Wait for connection
+    socket.on("connect", connectHandler);
+  }
 }
 
 // Event listeners
@@ -178,15 +193,25 @@ socket.on("opponentLeft", () => {
   endMatch("Opponent disconnected. Refresh to play again.");
 });
 
+socket.on("waiting_timeout", () => {
+  setLoading(false);
+  showStatus("Timeout waiting for opponent. Click Search again.");
+  dom.findBtn.disabled = false;
+});
+
 socket.on("connect_error", (error) => {
   console.error("Socket connection error:", error);
-  setLoading(false);
+  if (currentGameId === null) {
+    setLoading(false);
+    showStatus("Connection error. Please refresh.");
+  }
 });
 
 socket.on("disconnect", (reason) => {
   console.log("Socket disconnected:", reason);
-  if (reason === "io server disconnect") {
-    // Server disconnected, try to reconnect
+  if (currentGameId === null) {
+    // Not in a game yet, show error
     setLoading(false);
+    showStatus("Disconnected. Retrying...");
   }
 });
