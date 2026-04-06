@@ -14,7 +14,12 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(publicDir, "index.html"));
 });
 
+app.get("/dual", (req, res) => {
+  res.sendFile(path.join(publicDir, "dual.html"));
+});
+
 const waitingPlayers = [];
+const dualModePairs = new Map(); // Maps dualCode to waiting player
 const games = new Map();
 
 function createEmptyBoard() {
@@ -81,7 +86,7 @@ function cleanupGame(gameId) {
 }
 
 io.on("connection", (socket) => {
-  socket.on("find", ({ name }) => {
+  socket.on("find", ({ name, dualMode, dualCode }) => {
     if (!name || typeof name !== "string") {
       return;
     }
@@ -92,10 +97,60 @@ io.on("connection", (socket) => {
     }
 
     socket.data.name = name;
+    socket.data.dualMode = dualMode;
+    socket.data.dualCode = dualCode;
 
     // If the player is already in the waiting queue, ignore.
     if (waitingPlayers.includes(socket)) {
       return;
+    }
+
+    // Handle dual mode pairing
+    if (dualMode && dualCode) {
+      if (dualModePairs.has(dualCode)) {
+        const opponent = dualModePairs.get(dualCode);
+        dualModePairs.delete(dualCode);
+
+        // Create game with dual mode players
+        const game = createGame(
+          { socket: opponent, name: opponent.data.name },
+          { socket, name: socket.data.name }
+        );
+
+        socket.data.gameId = game.id;
+        socket.data.mark = "O";
+        opponent.data.gameId = game.id;
+        opponent.data.mark = "X";
+
+        socket.join(game.id);
+        opponent.join(game.id);
+
+        const opponentPayload = {
+          gameId: game.id,
+          yourMark: "X",
+          opponentName: socket.data.name,
+          board: game.board,
+          currentTurn: game.currentTurn,
+        };
+
+        opponent.emit("matched", opponentPayload);
+
+        const payload = {
+          gameId: game.id,
+          yourMark: "O",
+          opponentName: opponent.data.name,
+          board: game.board,
+          currentTurn: game.currentTurn,
+        };
+
+        socket.emit("matched", payload);
+        return;
+      } else {
+        // First player in dual mode - add to waiting for pair
+        dualModePairs.set(dualCode, socket);
+        socket.emit("waiting");
+        return;
+      }
     }
 
     // If there is someone waiting, start a game; otherwise, wait.
@@ -172,6 +227,12 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     const gameId = socket.data.gameId;
+    const dualCode = socket.data.dualCode;
+
+    // If the player was in dual mode queue, remove them
+    if (dualCode && dualModePairs.has(dualCode)) {
+      dualModePairs.delete(dualCode);
+    }
 
     // If the player was waiting, remove them from the queue.
     const waitingIndex = waitingPlayers.indexOf(socket);

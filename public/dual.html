@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic-Tac-Toe - Dual Mode</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      background-color: #f0f0f0;
+      font-family: "Tilt Warp", cursive;
+    }
+
+    .game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      border: 2px solid #333;
+      overflow: auto;
+    }
+
+    .game-container h2 {
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .divider {
+      width: 2px;
+      background-color: #333;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .divider {
+        height: 2px;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-container">
+    <h2>Player 1</h2>
+    <iframe src="/?dualMode=1&playerName=Player1"></iframe>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="game-container">
+    <h2>Player 2</h2>
+    <iframe src="/?dualMode=2&playerName=Player2"></iframe>
+  </div>
+
+  <script>
+    // Optional: Add communication between iframes if needed
+    console.log("Dual mode loaded with two game instances");
+  </script>
+</body>
+
+</html>

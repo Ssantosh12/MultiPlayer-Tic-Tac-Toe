@@ -18,6 +18,15 @@ let currentGameId = null;
 let myMark = null;
 let isMyTurn = false;
 
+// Get URL parameters for dual mode
+function getUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    dualMode: params.get("dualMode"),
+    playerName: params.get("playerName"),
+  };
+}
+
 function setVisibility(isInGame) {
   dom.bigcont = dom.bigcont || document.getElementById("bigcont");
   dom.bigcont.style.display = isInGame ? "block" : "none";
@@ -98,6 +107,30 @@ function setLoading(isLoading) {
 // Initial UI state
 setLoading(false);
 setVisibility(false);
+
+// Check for dual mode and auto-start
+const urlParams = getUrlParams();
+if (urlParams.dualMode && urlParams.playerName) {
+  dom.nameInput.value = urlParams.playerName;
+  
+  // Generate a unique dual code based on the page load time window
+  // Both iframes loaded at same time will have similar timestamps
+  const dualCode = "dual_" + Math.floor(Date.now() / 1000);
+  
+  // Auto-trigger find after a short delay to ensure both iframes are loaded
+  setTimeout(() => {
+    const name = dom.nameInput.value.trim();
+    if (name) {
+      setLoading(true);
+      dom.findBtn.disabled = true;
+      socket.emit("find", { 
+        name,
+        dualMode: urlParams.dualMode,
+        dualCode: dualCode
+      });
+    }
+  }, 500); // Small delay to ensure both iframes load and connect
+}
 
 // Event listeners
 
